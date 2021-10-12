@@ -72,9 +72,14 @@ void DMA_Init(DMA_Channel_TypeDef* channel, DMA_InitTypeDef* init_struct)
         ((u32)init_struct->DMA_DIR | (u32)init_struct->DMA_Mode | (u32)init_struct->DMA_PeripheralInc |
          (u32)init_struct->DMA_MemoryInc | (u32)init_struct->DMA_PeripheralDataSize | (u32)init_struct->DMA_MemoryDataSize |
          (u32)init_struct->DMA_Priority | (u32)init_struct->DMA_M2M));
+	__NOP();
+	__NOP();
 
     MODIFY_REG(channel->CCR, DMA_CCR_ARE, init_struct->DMA_Auto_reload);
-    channel->CNDTR = init_struct->DMA_BufferSize;
+    __NOP();
+	__NOP();
+	
+	channel->CNDTR = init_struct->DMA_BufferSize;
     channel->CPAR  = init_struct->DMA_PeripheralBaseAddr;
     channel->CMAR  = init_struct->DMA_MemoryBaseAddr;
 }

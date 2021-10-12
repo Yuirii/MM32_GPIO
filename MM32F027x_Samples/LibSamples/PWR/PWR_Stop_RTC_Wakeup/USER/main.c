@@ -35,7 +35,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @addtogroup MAIN
 /// @{
-
+#define LPWR	0
 ////////////////////////////////////////////////////////////////////////////////
 /// @addtogroup MAIN_Exported_Constants
 /// @{
@@ -49,30 +49,48 @@ extern u8 count;
 /// @param  None.
 /// @retval  0.
 ////////////////////////////////////////////////////////////////////////////////
+void Init_NVIC(void)
+{ 	
+  	exNVIC_Init_TypeDef NVIC_InitStructure;			//定义一个NVIC向量表结构体变量
+
+	NVIC_InitStructure.NVIC_IRQChannel = UART1_IRQn;			//配置串口1为中断源
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2; 	//设置占先优先级为2
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;		  	//设置副优先级为0
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			  	//使能串口1中断
+	exNVIC_Init(&NVIC_InitStructure);							  	//根据参数初始化中断寄存器
+	
+	// 配置DMA通道15
+	NVIC_InitStructure.NVIC_IRQChannel = DMA1_Channel2_3_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	exNVIC_Init(&NVIC_InitStructure);
+}
+
+
 s32 main(void)
 {
-	SystemReInit(11);//11 6
+	SystemReInit(3);//11 6
     LED_Init();
+	
 	CONSOLE_Init(115200);
-//	NVIC_Configure(TIM1_BRK_UP_TRG_COM_IRQn, 3, 1);
-//	TIM1_Init(4, 60);//HSI = 4MHz , psc = 60 => perid = 0 >> 
-    PWR_STOP_RTC_Init();
+	Init_NVIC();
+//    PWR_STOP_RTC_Init();
+//	RJPrintInfo("\n\r Init Complete ... ", 0, 0);
+	USART1_SendString("2222\n");
+	printf("init.");
     while(1) {
-//		LED1_TOGGLE();
-
+		
+		
+#if LPWR
 		LED_DeInit();
 		LED_Init();
 		CONSOLE_Init(115200);
-//		NVIC_Configure(TIM1_BRK_UP_TRG_COM_IRQn, 3, 1);
-//		TIM1_Init(4, 60);
 		LED_DeInit();
-//		deleyNop(10);
-//		printf("wkup");
 		PWR_STOP_RTC_Init();
-//		NVIC_DeConfigure(TIM1_BRK_UP_TRG_COM_IRQn, 3, 1);
         RTC_SetCounter(0);
         PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
-    
+#endif
 	}
 
 }
