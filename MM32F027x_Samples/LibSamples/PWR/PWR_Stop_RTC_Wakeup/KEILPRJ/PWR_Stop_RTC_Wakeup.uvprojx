@@ -337,7 +337,7 @@
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\..\Device\MM32F027x\Include;..\..\..\..\..\Device\MM32F027x\HAL_Lib\Inc;..\..\..\..\..\Device\CMSIS\KEIL_Core;..\USER;..\SYSTEM\UART;..\SYSTEM\SYS;..\SYSTEM\DELAY;..\HARDWARE\LED;..\HARDWARE\RTC;..\HARDWARE\APP_PWM;..\HARDWARE\EXTI</IncludePath>
+              <IncludePath>..\..\..\..\..\Device\MM32F027x\Include;..\..\..\..\..\Device\MM32F027x\HAL_Lib\Inc;..\..\..\..\..\Device\CMSIS\KEIL_Core;..\USER;..\SYSTEM\UART;..\SYSTEM\SYS;..\SYSTEM\DELAY;..\HARDWARE\PWR;..\HARDWARE\LED;..\HARDWARE\TIM</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -402,14 +402,14 @@
               <FilePath>..\HARDWARE\LED\led.c</FilePath>
             </File>
             <File>
-              <FileName>APP_PWM.C</FileName>
+              <FileName>pwr.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\HARDWARE\APP_PWM\APP_PWM.C</FilePath>
+              <FilePath>..\HARDWARE\PWR\pwr.c</FilePath>
             </File>
             <File>
-              <FileName>APP_EXTI.C</FileName>
+              <FileName>tim1_interrupt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\HARDWARE\EXTI\APP_EXTI.C</FilePath>
+              <FilePath>..\HARDWARE\TIM\tim1_interrupt.c</FilePath>
             </File>
           </Files>
         </Group>

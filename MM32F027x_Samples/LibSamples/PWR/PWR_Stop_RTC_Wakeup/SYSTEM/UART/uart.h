@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// @file    main.c
+/// @file    uart.h
 /// @author  AE TEAM
-/// @brief   THIS FILE PROVIDES ALL THE SYSTEM FUNCTIONS.
+/// @brief   THIS FILE PROVIDES ALL THE SYSTEM FIRMWARE FUNCTIONS.
 ////////////////////////////////////////////////////////////////////////////////
 /// @attention
 ///
@@ -16,54 +16,73 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // Define to prevent recursive inclusion
-#define _MAIN_C_
-
+#ifndef __UART_H
+#define __UART_H
 // Files includes
-#include "led.h"
-#include "delay.h"
-#include "rtc.h"
-#include "uart.h"
-#include "sys.h"
+#include "mm32_device.h"
+#include  "stdio.h"
+
 
 ////////////////////////////////////////////////////////////////////////////////
-/// @addtogroup MM32_Example_Layer
+/// @defgroup MM32_Example_Layer
+/// @brief MM32 Example Layer
 /// @{
 
 ////////////////////////////////////////////////////////////////////////////////
-/// @addtogroup MAIN
+/// @defgroup MM32_RESOURCE
+/// @brief MM32 Examples resource modules
 /// @{
 
 ////////////////////////////////////////////////////////////////////////////////
-/// @addtogroup MAIN_Exported_Constants
+/// @defgroup MM32_Exported_Constants
 /// @{
 
+////////////////////////////////////////////////////////////////////////////////
+/// @defgroup MM32_Exported_Variables
+/// @{
+#ifdef _UART_C_
+#define GLOBAL
+
+
+
+
+
+
+#else
+#define GLOBAL extern
+
+
+
+
+
+
+#endif
+
+
+
+
+#undef GLOBAL
+
+/// @}
 
 
 ////////////////////////////////////////////////////////////////////////////////
-/// @brief  This function is main entrance.
-/// @param  None.
-/// @retval  0.
-////////////////////////////////////////////////////////////////////////////////
-s32 main(void)
-{
-    u8 app_count = 0;
-	SystemReInit(SYSTEMCLK_HSE_96MHz);
-    LED_Init();
-    DELAY_Init();
-	CONSOLE_Init(9600);
-//    RTC_LSE_Init();
-    while(1) {
-        
-        LED1_TOGGLE();
-//        printf("%d\n", app_count++);
-//        DELAY_Ms(100);
-    }
+/// @defgroup MM32_Exported_Functions
+/// @{
 
-}
+void CONSOLE_Init(u32 baudrate);
+
+
+/// @}
 
 
 /// @}
 
 /// @}
 
-/// @}
+
+////////////////////////////////////////////////////////////////////////////////
+#endif
+////////////////////////////////////////////////////////////////////////////////
+
+

@@ -19,10 +19,13 @@
 #define _MAIN_C_
 
 // Files includes
+
+
 #include "led.h"
-#include "delay.h"
-#include "rtc.h"
+#include "pwr.h"
 #include "uart.h"
+#include "tim1_interrupt.h"
+#include "delay.h"
 #include "sys.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -36,7 +39,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 /// @addtogroup MAIN_Exported_Constants
 /// @{
-
+extern u8 timeflag;
+extern u32 SystemCoreClock;
+extern u8 count;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -46,20 +51,32 @@
 ////////////////////////////////////////////////////////////////////////////////
 s32 main(void)
 {
-    u8 app_count = 0;
-	SystemReInit(SYSTEMCLK_HSE_96MHz);
+	SystemReInit(11);//11 6
     LED_Init();
-    DELAY_Init();
-	CONSOLE_Init(9600);
-//    RTC_LSE_Init();
+	CONSOLE_Init(115200);
+//	NVIC_Configure(TIM1_BRK_UP_TRG_COM_IRQn, 3, 1);
+//	TIM1_Init(4, 60);//HSI = 4MHz , psc = 60 => perid = 0 >> 
+    PWR_STOP_RTC_Init();
     while(1) {
-        
-        LED1_TOGGLE();
-//        printf("%d\n", app_count++);
-//        DELAY_Ms(100);
-    }
+//		LED1_TOGGLE();
+
+		LED_DeInit();
+		LED_Init();
+		CONSOLE_Init(115200);
+//		NVIC_Configure(TIM1_BRK_UP_TRG_COM_IRQn, 3, 1);
+//		TIM1_Init(4, 60);
+		LED_DeInit();
+//		deleyNop(10);
+//		printf("wkup");
+		PWR_STOP_RTC_Init();
+//		NVIC_DeConfigure(TIM1_BRK_UP_TRG_COM_IRQn, 3, 1);
+        RTC_SetCounter(0);
+        PWR_EnterSTOPMode(PWR_Regulator_LowPower, PWR_STOPEntry_WFI);
+    
+	}
 
 }
+
 
 
 /// @}
