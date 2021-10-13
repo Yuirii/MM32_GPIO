@@ -239,7 +239,7 @@ typedef struct {
 #else
 #define GLOBAL extern
 #endif
-
+ 
 #undef GLOBAL
 
 /// @}
@@ -280,6 +280,7 @@ void exSPI_ITConfig(SPI_TypeDef* spi, SPI_IT_TypeDef interrput, FunctionalState 
 void exSPI_DMACmd(SPI_TypeDef* spi, FunctionalState state);
 void exSPI_CSInternalSelected(SPI_TypeDef* spi, FunctionalState state);
 void exSPI_DataEdgeAdjust(SPI_TypeDef* spi, SPI_DataEdgeAdjust_TypeDef adjust_value);
+void SPI_I2S_ClearFlag(SPI_TypeDef* SPIx, uint16_t SPI_I2S_FLAG);
 /// @}
 
 /// @}

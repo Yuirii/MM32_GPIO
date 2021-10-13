@@ -528,6 +528,15 @@ void exSPI_DataEdgeAdjust(SPI_TypeDef* spi, SPI_DataEdgeAdjust_TypeDef adjust_va
         adjust_value ? SET_BIT(spi->CCR, SPI_CCR_TXEDGE) : CLEAR_BIT(spi->CCR, SPI_CCR_TXEDGE);
     }
 }
+
+/**@brief 	clear flag of SR register. 
+ * @param 	SPI_SR Register Bit Definition in "reg_spi.h"
+ * @return 	NULL
+ **/
+void SPI_I2S_ClearFlag(SPI_TypeDef* SPIx, uint16_t SPI_I2S_FLAG)
+{
+    SPIx->SR = (uint16_t)~SPI_I2S_FLAG;
+}
 /// @}
 
 /// @}

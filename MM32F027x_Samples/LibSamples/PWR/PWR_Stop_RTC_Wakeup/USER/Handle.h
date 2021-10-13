@@ -16,7 +16,7 @@
  extern "C" {
 #endif 
 
-#include "stm32f10x.h"
+#include "reg_common.h"
 
 
 extern void CommomOperation(void);

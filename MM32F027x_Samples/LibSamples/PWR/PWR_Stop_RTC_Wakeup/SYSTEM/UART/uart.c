@@ -238,7 +238,7 @@ void CONSOLE_Init(u32 baudrate)
 	
 	
 	
-//	Usart_DmaConfig();
+	Usart_DmaConfig();
 
 }
 

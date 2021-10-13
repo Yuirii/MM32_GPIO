@@ -1,8 +1,8 @@
 
 #include "verifypro.h"
-#include "platform.h"
+//#include "platform.h"
 #include "string.h"
-#include "usart.h"
+#include "uart.h"
 #include "delay.h"
 #include "spi.h"
 
@@ -17,7 +17,7 @@ uint8_t recv_buff[DATALEN] = {0};
 void Reset_401S(void)
 {
 	GPIO_SetBits(GPIOB,GPIO_Pin_11);	         //P1.28输出高电平
-	delay_ms(2);
+	DELAY_Ms(2);
 	GPIO_ResetBits(GPIOB,GPIO_Pin_11);        //P1.28输出低电平
 }
 
@@ -39,7 +39,7 @@ uint8_t WaitNotBusy(void)
 			return 1;
 		}
 		tree++;
-		delay_ms(15);
+		DELAY_Ms(15);
 	}
 	
 	return 0;
@@ -123,14 +123,14 @@ static uint16_t STM_CommomOpera(uint8_t *buff, uint16_t len, uint8_t *result, ui
 	
 	*rlen = 0;
 	SPI_TXbuff(buff, 0x06);      // 发送命令
-	delay_us(50);
+	DELAY_Ms(1);
 	SPI_RXbuff(CMD_Result, 2);    // 读CMD解析状态字节
 	RJPrintInfo("\r\n Receive CMD_Result : ", CMD_Result, 2);
 	if((CMD_Result[0] == 0x9A) && (CMD_Result[1] == 0x00))   // CMD解析正常
     {
 	   if(len == 0x06 && (buff[4] != 0 || buff[5] != 0))  //无数据，且有待接收数据
 	   {
-			delay_us(50);
+			DELAY_Ms(1);
 			// 分两种情况：1.有待接收的数据；2.无待接收的数据
 			Result_status = (uint16_t)buff[4]<<8 | (uint16_t)buff[5];
 			SPI_RXbuff(result,Result_status);		//接收结果数据
@@ -143,7 +143,7 @@ static uint16_t STM_CommomOpera(uint8_t *buff, uint16_t len, uint8_t *result, ui
 	   }
 	   else if(len > 0x06)   //有数据
 	   {
-		   delay_us(50);
+		   DELAY_Ms(1);
 		   SPI_TXbuff(&buff[6], len-0x06);  //发送数据
 	   }
 	}
@@ -153,7 +153,7 @@ static uint16_t STM_CommomOpera(uint8_t *buff, uint16_t len, uint8_t *result, ui
 		return Result_status;
 	}
 	
-	delay_us(100);
+	DELAY_Ms(1);
 	SPI_RXbuff(Result_SW,2);    			//读结果状态字节
 	RJPrintInfo("\r\n Received Result_SW : ", Result_SW, 2);
 	
@@ -241,7 +241,7 @@ uint16_t STM_OperationHandle(uint8_t *cmd, uint8_t *data, uint16_t d_len, uint8_
 		Result_SW = *r_len;
 		memcpy(result, recv_buff, *r_len);
 	}
-	delay_us(10);
+	DELAY_Ms(1);
 	
 	return Result_SW;
 }

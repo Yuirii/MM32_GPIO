@@ -28,6 +28,9 @@
 #include "delay.h"
 #include "sys.h"
 
+#include "Handle.h"
+#include "verifypro.h"
+
 ////////////////////////////////////////////////////////////////////////////////
 /// @addtogroup MM32_Example_Layer
 /// @{
@@ -70,17 +73,25 @@ void Init_NVIC(void)
 
 s32 main(void)
 {
-	SystemReInit(3);//11 6
+	SystemReInit(5);//11 6
     LED_Init();
+	DELAY_Init();
 	
 	CONSOLE_Init(115200);
 	Init_NVIC();
+	Init_APP();
 //    PWR_STOP_RTC_Init();
-//	RJPrintInfo("\n\r Init Complete ... ", 0, 0);
-	USART1_SendString("2222\n");
-	printf("init.");
+	RJPrintInfo("\n\r Init Complete ... ", 0, 0);
+	DELAY_Ms(10);
+	
     while(1) {
-		
+		DELAY_Ms(1);
+		if(RXflag == 1){  //串口数据接收完毕
+			DELAY_Ms(2);
+			CommomOperation();
+			RXflag = 0;
+		}
+		DELAY_Ms(1);
 		
 #if LPWR
 		LED_DeInit();

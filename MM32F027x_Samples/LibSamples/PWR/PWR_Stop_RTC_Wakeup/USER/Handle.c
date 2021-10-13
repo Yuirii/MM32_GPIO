@@ -10,7 +10,7 @@
 */
 
 #include "Handle.h"
-#include "usart.h"
+#include "uart.h"
 #include "delay.h"
 #include "usually.h"
 #include "verifypro.h"
@@ -41,7 +41,7 @@ uint16_t SendData_API(void)
 	
 	t_time = 500;
 	while(1){
-		delay_ms(2);
+		DELAY_Ms(2);
 		if(data_len == Cmd_DataLen || Cmd_DataLen == 0) {
 			break;
 		}

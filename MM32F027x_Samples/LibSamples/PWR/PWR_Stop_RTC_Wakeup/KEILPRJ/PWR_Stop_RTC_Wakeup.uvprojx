@@ -337,7 +337,7 @@
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\..\Device\MM32F027x\Include;..\..\..\..\..\Device\MM32F027x\HAL_Lib\Inc;..\..\..\..\..\Device\CMSIS\KEIL_Core;..\USER;..\SYSTEM\UART;..\SYSTEM\SYS;..\SYSTEM\DELAY;..\HARDWARE\PWR;..\HARDWARE\LED;..\HARDWARE\TIM</IncludePath>
+              <IncludePath>..\..\..\..\..\Device\MM32F027x\Include;..\..\..\..\..\Device\MM32F027x\HAL_Lib\Inc;..\..\..\..\..\Device\CMSIS\KEIL_Core;..\USER;..\SYSTEM\UART;..\SYSTEM\SYS;..\SYSTEM\DELAY;..\HARDWARE\PWR;..\HARDWARE\LED;..\HARDWARE\TIM;..\HARDWARE\USUALLY;..\HARDWARE\SPI</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -431,6 +431,16 @@
               <FileType>1</FileType>
               <FilePath>..\SYSTEM\UART\uart.c</FilePath>
             </File>
+            <File>
+              <FileName>usually.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\USUALLY\usually.c</FilePath>
+            </File>
+            <File>
+              <FileName>spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\HARDWARE\SPI\spi.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -440,6 +450,16 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\USER\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>Handle.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\Handle.c</FilePath>
+            </File>
+            <File>
+              <FileName>verifypro.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\verifypro.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -1,9 +1,11 @@
 
 #include "spi.h"
-#include "usart.h"
+#include "uart.h"
 #include "usually.h"
 #include "string.h"
 #include <delay.h>
+#include "mm32_device.h"
+#include "hal_conf.h"
 
 /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ** 函数名称: SPIx_Init
@@ -16,7 +18,7 @@ void SPI2_Init(void)
     GPIO_InitTypeDef GPIO_InitStructure;
 
   	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_AHBENR_GPIOB | RCC_AHBENR_GPIOC, ENABLE);
 	
     //SPI2模块对应的PB13:SCK、PB14:MISO、PB15:MOSI为AF引脚
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
@@ -41,7 +43,8 @@ void SPI2_Init(void)
 	//GPIO_ResetBits(GPIOB, GPIO_Pin_12);
 	
 	/* SPI2 configuration pclk1 2*36M */
-	SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
+//	SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
+	
 	SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
 	SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
 	SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;
@@ -49,14 +52,14 @@ void SPI2_Init(void)
 	SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;			// SPI_NSS_Hard硬件自动，主从1对1，发送数据期间保持NSS为低
 	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_32;
 	SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;	// the Most Significant Bit
-	SPI_InitStructure.SPI_CRCPolynomial = 7;			// 确定CRC计算多项式
+//	SPI_InitStructure.SPI_CRCPolynomial = 7;			// 确定CRC计算多项式
 	
 	SPI_Init(SPI2, &SPI_InitStructure);
 //	SPI2->CR1 |= 0x4000;
 //	SPI2->CR1 |= 0x2000;
 
-	SPI_I2S_ClearFlag(SPI2, SPI_I2S_FLAG_RXNE);
-	SPI_I2S_ClearFlag(SPI2, SPI_I2S_FLAG_TXE);
+	SPI_I2S_ClearFlag(SPI2, SPI_FLAG_TXEPT);
+	SPI_I2S_ClearFlag(SPI2, SPI_FLAG_RXAVL);
   	//SPI_I2S_ITConfig(SPI2, SPI_I2S_IT_RXNE, ENABLE);//开启中断
 	
   	SPI_Cmd(SPI2, ENABLE);					   //Enable SPI1  
@@ -79,7 +82,7 @@ void SPIx_SetSpeed(u8 SpeedSet)
 {
     SPI_InitTypeDef SPI_InitStructure ;
     
-    SPI_InitStructure.SPI_Direction=SPI_Direction_2Lines_FullDuplex ;	// 全双工
+//    SPI_InitStructure.SPI_Direction=SPI_Direction_2Lines_FullDuplex ;	// 全双工
     SPI_InitStructure.SPI_Mode=SPI_Mode_Master ;
     SPI_InitStructure.SPI_DataSize=SPI_DataSize_8b ;
     SPI_InitStructure.SPI_CPOL=SPI_CPOL_Low ;
@@ -95,7 +98,7 @@ void SPIx_SetSpeed(u8 SpeedSet)
     }
 
     SPI_InitStructure.SPI_FirstBit=SPI_FirstBit_MSB ;
-    SPI_InitStructure.SPI_CRCPolynomial=7 ;
+//    SPI_InitStructure.SPI_CRCPolynomial=7 ;
     SPI_Init(SPI2,&SPI_InitStructure);
 }
 
@@ -109,30 +112,30 @@ void SPIx_SetSpeed(u8 SpeedSet)
 u8 SPIx_ReadWriteByte(u8 TxData)
 {
 	// 等待发送空闲
-  	while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET);
-  	SPI_I2S_SendData(SPI2, TxData);
+  	while (SPI_GetFlagStatus(SPI2, SPI_FLAG_TXEPT) == RESET);
+  	SPI_SendData(SPI2, TxData);
 	
 	// 等待接收就绪状态
-  	while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_RXNE) == RESET);
-  	return SPI_I2S_ReceiveData(SPI2);
+  	while (SPI_GetFlagStatus(SPI2, SPI_FLAG_RXAVL) == RESET);
+  	return SPI_ReceiveData(SPI2);
 }
 
 u8	SPI_ReadByte(void)
 {
 	// 等待接收就绪状态
-  	while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_RXNE) == RESET);
+  	while (SPI_GetFlagStatus(SPI2, SPI_FLAG_RXAVL) == RESET);
 
-  	return SPI_I2S_ReceiveData(SPI2);
+  	return SPI_ReceiveData(SPI2);
 }
 
 //SPI读写函数
 u16 SPI_SendByte(u16 byte)
 {
    u16 data=0;
-   while(SPI_I2S_GetFlagStatus(SPI2,SPI_I2S_FLAG_TXE)!=SET);	  //等待发送缓冲器为空
-   SPI_I2S_SendData(SPI2,byte);
-   while(SPI_I2S_GetFlagStatus(SPI2,SPI_I2S_FLAG_RXNE)==RESET);	  //等待接收缓冲器有数据进来
-   data= SPI_I2S_ReceiveData(SPI2);
+   while(SPI_GetFlagStatus(SPI2,SPI_FLAG_TXEPT)!=SET);	  //等待发送缓冲器为空
+   SPI_SendData(SPI2,byte);
+   while(SPI_GetFlagStatus(SPI2,SPI_FLAG_RXAVL)==RESET);	  //等待接收缓冲器有数据进来
+   data= SPI_ReceiveData(SPI2);
    return data;
 }
 
@@ -145,11 +148,11 @@ void SPI_RXbuff(uint8_t *buff,uint32_t len)
 	//delay_ms(1);
 	while(!(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_12)));//等待从机就绪，此处与从机的PIN4脚相连
 	GPIO_ResetBits(GPIOC,GPIO_Pin_4);                   //拉低片选信号
-	delay_us(10);                                       //必要的10us延时
+	DELAY_Ms(1);                                       //必要的10us延时
 	for(i=0;i<len;i++)
 	{
 		buff[i]=SPI_SendByte(0x00);     
-		delay_us(10);                                  //必要的10us延时
+		DELAY_Ms(1);                                  //必要的10us延时
 	}
 	GPIO_SetBits(GPIOC,GPIO_Pin_4);                    //拉高片选信号
 }
@@ -163,11 +166,11 @@ void SPI_TXbuff(uint8_t *buff, uint32_t len)
 	
 	while(!(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_12))); //等待从机就绪，此处与从机的PIN4脚相连
 	GPIO_ResetBits(GPIOC,GPIO_Pin_4);                    //拉低片选信号
-	delay_us(10);                                        //必要的10us延时
+	DELAY_Ms(1);                                        //必要的10us延时
 	for(i=0;i<len;i++)
 	{
 		SPI_SendByte(buff[i]); 
-		delay_us(10);                                  //必要的10us延时
+		DELAY_Ms(1);                                  //必要的10us延时
 	}
 	GPIO_SetBits(GPIOC,GPIO_Pin_4);                    //拉高片选信号
 }
