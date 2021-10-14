@@ -95,9 +95,9 @@ void Usart_DmaConfig(void){
 	DMA_Init(DMA1_Channel3,&dmaTypeStruct);
 
 	UART_DMACmd(UART1,USART_DMAReq_Rx,ENABLE);
-	//DMA_GetFlagStatus(DMA2_FLAG_TC3);
-	//DMA_ClearFlag(DMA1_FLAG_TC5);
-	//DMA_ClearITPendingBit(DMA1_IT_TC5);
+//	DMA_GetFlagStatus(DMA2_FLAG_TC3);
+//	DMA_ClearFlag(DMA1_FLAG_TC5);
+//	DMA_ClearITPendingBit(DMA1_IT_TC5);
 	DMA_ITConfig(DMA1_Channel3,DMA_IT_TC,ENABLE);
 	DMA_ITConfig(DMA1_Channel3,DMA_IT_TE,ENABLE);
 	DMA_Cmd(DMA1_Channel3,ENABLE);

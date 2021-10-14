@@ -6,45 +6,218 @@
 #include <delay.h>
 #include "mm32_device.h"
 #include "hal_conf.h"
+#include "delay.h"
 
+u8 gTxData[256];
+u8 gRxData[256];
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  Read ID
+/// @note   None.
+/// @param  None.
+/// @retval None.
+////////////////////////////////////////////////////////////////////////////////
+void W25xx_ReadID(void)
+{
+    u8 temp;
+    u32 i;
+    //Spi cs assign to this pin,select
+    W25xx_CS_Low();
+    W25xx_ReadWriteByte(RDID);
+    for(i = 0; i < 3; i++) {
+        temp = W25xx_ReadWriteByte(0x01);
+        printf("temp=0x%x\r\n", temp);
+    }
+    W25xx_CS_High();
+}
 
-static void W25xx_CS_High()
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  SPI FLASH Write
+/// @note   None.
+/// @param  Address:address.
+/// @param  number:data length.
+/// @param  p:data buff.
+/// @retval None.
+////////////////////////////////////////////////////////////////////////////////
+void W25xx_PageProgram(u32 address, u8* p, u32 number)
+{
+    u32 j;
+    u8 addr0, addr1, addr2;
+    //page address
+    address = address & 0xffffff00;
+    addr0 = (u8)(address >> 16);
+    addr1 = (u8)(address >> 8);
+    addr2 = (u8)address;
+
+    W25xx_WriteEnable();
+    W25xx_CS_Low();
+    W25xx_ReadWriteByte(PP);
+    W25xx_ReadWriteByte(addr0);
+    W25xx_ReadWriteByte(addr1);
+    W25xx_ReadWriteByte(addr2);
+    for(j = 0; j < number; j++) {
+        W25xx_ReadWriteByte(*(p++));
+    }
+    W25xx_CS_High();
+    W25xx_CheckStatus();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  SPI Sector Erase
+/// @note   None.
+/// @param  address:address.
+/// @retval None.
+////////////////////////////////////////////////////////////////////////////////
+void W25xx_SectorErase(u32 address)
+{
+    u8 addr0, addr1, addr2;
+    address = address & 0xffff0000;
+    addr0 = ((u8)(address >> 16)) & 0xff;
+    addr1 = ((u8)(address >> 8)) & 0xff;
+    addr2 = ((u8)address) & 0xff;
+
+    W25xx_WriteEnable();
+    //Spi cs assign to this pin,select
+    W25xx_CS_Low();
+    W25xx_ReadWriteByte(SE);
+    W25xx_ReadWriteByte(addr0);
+    W25xx_ReadWriteByte(addr1);
+    W25xx_ReadWriteByte(addr2);
+    W25xx_CS_High();
+    W25xx_CheckStatus();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  SPI FLASH Read
+/// @note   None.
+/// @param  Address:address.
+/// @param  number:data length.
+/// @param  p:data buff.
+/// @retval None.
+////////////////////////////////////////////////////////////////////////////////
+void W25xx_PageRead(u32 address, u8* p, u32 number)
+{
+    u8 addr0, addr1, addr2;
+    u32 i;
+    address = address & 0xffffff00;
+    addr0 = (u8)(address >> 16);
+    addr1 = (u8)(address >> 8);
+    addr2 = (u8)address;
+
+    W25xx_CS_Low();
+    W25xx_ReadWriteByte(READ);
+    W25xx_ReadWriteByte(addr0);
+    W25xx_ReadWriteByte(addr1);
+    W25xx_ReadWriteByte(addr2);
+    for(i = 0; i < number; i++) {
+        gRxData[i] = W25xx_ReadWriteByte(0x00);
+    }
+    W25xx_CS_High();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  Enable FLASH Read
+/// @note   None.
+/// @param  None
+/// @retval None.
+////////////////////////////////////////////////////////////////////////////////
+void W25xx_WriteEnable(void)
+{
+    W25xx_CS_Low();
+    W25xx_ReadWriteByte(WREN);
+    W25xx_CS_High();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  check Status
+/// @note   None.
+/// @param  None.
+/// @retval None.
+////////////////////////////////////////////////////////////////////////////////
+void W25xx_CheckStatus(void)
+{
+    u8 temp;
+    W25xx_CS_Low();
+    W25xx_ReadWriteByte(RDSR);
+    while(1) {
+        temp = W25xx_ReadWriteByte(0x00);
+        if((temp & 0x01) == 0x0)
+            break;
+    }
+    W25xx_CS_High();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  Reset internal NSS pins for selected SPI software
+/// @note   None.
+/// @param  None.
+/// @retval None.
+////////////////////////////////////////////////////////////////////////////////
+void W25xx_CS_Low(void)
+{
+    GPIO_ResetBits( GPIOB, GPIO_Pin_9 );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  Reset internal NSS pins for selected SPI software
+/// @note   None.
+/// @param  None.
+/// @retval None.
+////////////////////////////////////////////////////////////////////////////////
+void W25xx_CS_High(void)
 {
     //Spi cs release
-    SPI_CSInternalSelected(SPI2, DISABLE);
+    GPIO_SetBits( GPIOB, GPIO_Pin_9 );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief  SPI FLASH Write Read
+/// @note   None.
+/// @param  tx_data:data.
+/// @retval rx data.
+////////////////////////////////////////////////////////////////////////////////
+u32 W25xx_ReadWriteByte(u8 tx_data)
+{
+    SPI_SendData(SPI2, tx_data);
+    while (1) {
+        if(SPI_GetFlagStatus(SPI2, SPI_FLAG_RXAVL)) {
+            return SPI_ReceiveData(SPI2);
+        }
+    }
 }
 
 static void SPI2_GPIO_Config(void)
 {
     GPIO_InitTypeDef  GPIO_InitStruct;
 
-    RCC_AHBPeriphClockCmd(RCC_AHBENR_GPIOB, ENABLE);
-    GPIO_PinAFConfig(SPI_MOSI_PORT, SPI_MOSI_AFSOURCE, SPI_MOSI_AFMODE);
-    GPIO_PinAFConfig(SPI_NSS_PORT, SPI_NSS_AFSOURCE, SPI_NSS_AFMODE);
-    GPIO_PinAFConfig(SPI_MISO_PORT, SPI_MISO_AFSOURCE, SPI_MISO_AFMODE);
-    GPIO_PinAFConfig(SPI_SCK_PORT, SPI_SCK_AFSOURCE, SPI_SCK_AFMODE);
-    W25xx_CS_High();
-    //spi2_cs  pb12
+  	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
+
+    GPIO_PinAFConfig(GPIOB, GPIO_PinSource13, GPIO_AF_0);
+    GPIO_PinAFConfig(GPIOB, GPIO_PinSource14, GPIO_AF_0);
+    GPIO_PinAFConfig(GPIOB, GPIO_PinSource15, GPIO_AF_0);
+	
     GPIO_StructInit(&GPIO_InitStruct);
-    GPIO_InitStruct.GPIO_Pin  = SPI_NSS_PIN;
-    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
-    GPIO_Init(SPI_NSS_PORT, &GPIO_InitStruct);
-    //spi2_sck  pb13
-    GPIO_InitStruct.GPIO_Pin  = SPI_SCK_PIN;
-    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
-    GPIO_Init(SPI_SCK_PORT, &GPIO_InitStruct);
-    //spi2_mosi  pb15
-    GPIO_InitStruct.GPIO_Pin  = SPI_MOSI_PIN;
-    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
-    GPIO_Init(SPI_MOSI_PORT, &GPIO_InitStruct);
-    //spi2_miso  pb14
-    GPIO_InitStruct.GPIO_Pin  = SPI_MISO_PIN;
+	
+	GPIO_InitStruct.GPIO_Pin  = GPIO_Pin_12;
     GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPU;
-    GPIO_Init(SPI_MISO_PORT, &GPIO_InitStruct);
+    GPIO_Init(GPIOB, &GPIO_InitStruct);
+	
+    GPIO_InitStruct.GPIO_Pin  = GPIO_Pin_9;
+    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
+    GPIO_Init(GPIOB, &GPIO_InitStruct);
+	GPIO_SetBits(GPIOB,GPIO_Pin_9);
+    GPIO_InitStruct.GPIO_Pin  = GPIO_Pin_13;
+    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
+    GPIO_Init(GPIOB, &GPIO_InitStruct);
+    GPIO_InitStruct.GPIO_Pin  = GPIO_Pin_15;
+    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
+    GPIO_Init(GPIOB, &GPIO_InitStruct);
+    GPIO_InitStruct.GPIO_Pin  = GPIO_Pin_14;
+    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPU;
+    GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 }
 /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -56,8 +229,8 @@ void SPI2_Init(void)
 {
     SPI_InitTypeDef SPI_InitStruct;
     RCC_APB1PeriphClockCmd(RCC_APB1ENR_SPI2, ENABLE);
+	W25xx_CS_Low();
 
-	SPI2_GPIO_Config();
     SPI_StructInit(&SPI_InitStruct);
     SPI_InitStruct.SPI_Mode = SPI_Mode_Master;
     SPI_InitStruct.SPI_DataSize = SPI_DataSize_8b;
@@ -71,9 +244,13 @@ void SPI2_Init(void)
     if(SPI_InitStruct.SPI_BaudRatePrescaler <= 8) {
         exSPI_DataEdgeAdjust(SPI2, SPI_DataEdgeAdjust_FAST);
     }
+	
+	SPI_I2S_ClearFlag(SPI2, SPI_IT_RX | SPI_IT_TXEPT);
     SPI_BiDirectionalLineConfig(SPI2, SPI_Direction_Rx);
     SPI_BiDirectionalLineConfig(SPI2, SPI_Direction_Tx);
     SPI_Cmd(SPI2, ENABLE);
+	
+	SPI2_GPIO_Config();
 }
 
 /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -156,14 +333,16 @@ void SPI_RXbuff(uint8_t *buff,uint32_t len)
 		return;
 	//delay_ms(1);
 	while(!(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_12)));//等待从机就绪，此处与从机的PIN4脚相连
-	GPIO_ResetBits(GPIOC,GPIO_Pin_4);                   //拉低片选信号
-	DELAY_Ms(1);                                       //必要的10us延时
+	GPIO_ResetBits(GPIOB,GPIO_Pin_9);                   //拉低片选信号
+	DELAY_Us(10);                                       //必要的10us延时
 	for(i=0;i<len;i++)
 	{
 		buff[i]=SPI_SendByte(0x00);     
-		DELAY_Ms(1);                                  //必要的10us延时
+		DELAY_Us(10);                                  //必要的10us延时
 	}
-	GPIO_SetBits(GPIOC,GPIO_Pin_4);                    //拉高片选信号
+	GPIO_SetBits(GPIOB,GPIO_Pin_9);                    //拉高片选信号
+//	W25xx_PageRead(0, buff, len);
+////	W25xx_PageProgram(0, buff, len);
 }
 
 void SPI_TXbuff(uint8_t *buff, uint32_t len)
@@ -174,14 +353,18 @@ void SPI_TXbuff(uint8_t *buff, uint32_t len)
 		return;
 	
 	while(!(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_12))); //等待从机就绪，此处与从机的PIN4脚相连
-	GPIO_ResetBits(GPIOC,GPIO_Pin_4);                    //拉低片选信号
-	DELAY_Ms(1);                                        //必要的10us延时
+	GPIO_ResetBits(GPIOB,GPIO_Pin_9);                    //拉低片选信号
+	W25xx_CS_Low();
+	//DELAY_Ms(20);                                        //必要的10us延时
 	for(i=0;i<len;i++)
 	{
 		SPI_SendByte(buff[i]); 
-		DELAY_Ms(1);                                  //必要的10us延时
+		DELAY_Us(20);                                  //必要的10us延时
 	}
-	GPIO_SetBits(GPIOC,GPIO_Pin_4);                    //拉高片选信号
+	GPIO_SetBits(GPIOB,GPIO_Pin_9);                    //拉高片选信号
+	
+//	W25xx_PageProgram(0, buff, len);
+////	W25xx_PageRead(0, buff, len);
 }
 
 

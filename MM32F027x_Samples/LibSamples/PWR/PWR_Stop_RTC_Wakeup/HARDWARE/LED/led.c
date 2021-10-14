@@ -46,28 +46,27 @@
 void LED_Init(void)
 {
     GPIO_InitTypeDef  GPIO_InitStruct;
-    RCC_AHBPeriphClockCmd(RCC_AHBENR_GPIOA, ENABLE);
     RCC_AHBPeriphClockCmd(RCC_AHBENR_GPIOB, ENABLE);
     GPIO_StructInit(&GPIO_InitStruct);
-    GPIO_InitStruct.GPIO_Pin  =  GPIO_Pin_15;
-    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
-    GPIO_Init(GPIOA, &GPIO_InitStruct);
+//    GPIO_InitStruct.GPIO_Pin  =  GPIO_Pin_9;
+//    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+//    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
+//    GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     GPIO_InitStruct.GPIO_Pin  = GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5;
     GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
     GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    LED1_OFF();
-//    LED2_OFF();
-//    LED3_OFF();
-//    LED4_OFF();
+//    LED1_OFF();
+    LED2_OFF();
+    LED3_OFF();
+    LED4_OFF();
 
 //    LED1_ON();
-//    LED2_ON();
-//    LED3_ON();
-//    LED4_ON();
+    LED2_ON();
+    LED3_ON();
+    LED4_ON();
 }
 
 

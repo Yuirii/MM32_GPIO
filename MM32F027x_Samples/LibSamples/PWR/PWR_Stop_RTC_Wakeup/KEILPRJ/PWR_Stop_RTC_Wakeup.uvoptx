@@ -130,7 +130,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>JL2CM3</Key>
-          <Name>-U30000299 -O78 -S8 -ZTIFSpeedSel100 -A0 -C0 -JU1 -JI127.0.0.1 -JP0 -RST0 -N00("ARM CoreSight SW-DP") -D00(0BB11477) -L00(0) -TO18 -TC10000000 -TP21 -TDS8007 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -TB1 -TFE0 -FO15 -FD20000000 -FC1000 -FN1 -FF0MM32F0270_128.FLM -FS08000000 -FL020000 -FP0($$Device:MM32F0273D7P$Flash\MM32F0270_128.FLM)</Name>
+          <Name>-U30000299 -O78 -S7 -ZTIFSpeedSel200 -A0 -C0 -JU1 -JI127.0.0.1 -JP0 -RST0 -N00("ARM CoreSight SW-DP") -D00(0BB11477) -L00(0) -TO18 -TC10000000 -TP21 -TDS8007 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -TB1 -TFE0 -FO15 -FD20000000 -FC1000 -FN1 -FF0MM32F0270_128.FLM -FS08000000 -FL020000 -FP0($$Device:MM32F0273D7P$Flash\MM32F0270_128.FLM)</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -157,34 +157,34 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>91</LineNumber>
+          <LineNumber>359</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134222440</Address>
+          <Address>134222560</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\USER\main.c</Filename>
+          <Filename>..\HARDWARE\SPI\spi.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\MBOUT\../USER/main.c\91</Expression>
+          <Expression>\\MBOUT\../HARDWARE/SPI/spi.c\359</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>184</LineNumber>
+          <LineNumber>368</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134221166</Address>
+          <Address>134222616</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\SYSTEM\UART\uart.c</Filename>
+          <Filename>..\HARDWARE\SPI\spi.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\MBOUT\../SYSTEM/UART/uart.c\184</Expression>
+          <Expression>\\MBOUT\../HARDWARE/SPI/spi.c\368</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -207,6 +207,11 @@
           <count>3</count>
           <WinNumber>1</WinNumber>
           <ItemText>((UART_TypeDef*) (((0x40000000U) + 0x00010000) + 0x3800))</ItemText>
+        </Ww>
+        <Ww>
+          <count>4</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>send_buff</ItemText>
         </Ww>
       </WatchWindow1>
       <Tracepoint>

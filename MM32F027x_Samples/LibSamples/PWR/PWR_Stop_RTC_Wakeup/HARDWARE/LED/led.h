@@ -43,8 +43,8 @@
 /// @defgroup MM32_Exported_Constants
 /// @{
 
-#define LED1_Port  GPIOA
-#define LED1_Pin   GPIO_Pin_15
+#define LED1_Port  GPIOB
+#define LED1_Pin   GPIO_Pin_9
 #define LED2_Port  GPIOB
 #define LED2_Pin   GPIO_Pin_3
 #define LED3_Port  GPIOB

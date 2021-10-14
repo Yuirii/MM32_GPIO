@@ -58,7 +58,7 @@ void Init_NVIC(void)
 
 	NVIC_InitStructure.NVIC_IRQChannel = UART1_IRQn;			//配置串口1为中断源
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2; 	//设置占先优先级为2
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;		  	//设置副优先级为0
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;		  	//设置副优先级为0
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			  	//使能串口1中断
 	exNVIC_Init(&NVIC_InitStructure);							  	//根据参数初始化中断寄存器
 	
@@ -68,6 +68,12 @@ void Init_NVIC(void)
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	exNVIC_Init(&NVIC_InitStructure);
+	
+//    NVIC_InitStructure.NVIC_IRQChannel = SPI2_IRQn;
+//	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+//	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+//    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+//    exNVIC_Init(&NVIC_InitStructure);
 }
 
 
@@ -77,9 +83,11 @@ s32 main(void)
     LED_Init();
 	DELAY_Init();
 	
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_CRC, ENABLE);
 	CONSOLE_Init(115200);
-	Init_NVIC();
 	Init_APP();
+	Init_NVIC();
+	
 //    PWR_STOP_RTC_Init();
 	RJPrintInfo("\n\r Init Complete ... ", 0, 0);
 	DELAY_Ms(10);

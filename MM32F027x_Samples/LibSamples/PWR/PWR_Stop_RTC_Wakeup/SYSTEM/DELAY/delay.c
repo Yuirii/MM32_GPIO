@@ -35,7 +35,7 @@
 
 
 
-#define USE_SYSTICK_DELAY 1
+#define USE_SYSTICK_DELAY 0
 //1 = use systick as the delay,
 //0 = use NOP loop as the delay
 
