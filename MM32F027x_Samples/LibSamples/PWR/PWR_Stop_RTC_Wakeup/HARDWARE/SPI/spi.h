@@ -15,6 +15,31 @@
 #define SPI_SPEED_8   2
 #define SPI_SPEED_16  3
 #define SPI_SPEED_256 4
+
+// copy form MM32 SPI.H
+#define SPI_MOSI_BUSCLK                  RCC_AHBENR_GPIOB
+#define SPI_MOSI_PIN                     GPIO_Pin_15
+#define SPI_MOSI_PORT                    GPIOB
+#define SPI_MOSI_AFSOURCE                GPIO_PinSource15
+#define SPI_MOSI_AFMODE                  GPIO_AF_0
+
+#define SPI_NSS_BUSCLK                  RCC_AHBENR_GPIOC
+#define SPI_NSS_PIN                     GPIO_Pin_4
+#define SPI_NSS_PORT                    GPIOB
+#define SPI_NSS_AFSOURCE                GPIO_PinSource12
+#define SPI_NSS_AFMODE                  GPIO_AF_0
+
+#define SPI_MISO_BUSCLK                  RCC_AHBENR_GPIOB
+#define SPI_MISO_PIN                     GPIO_Pin_14
+#define SPI_MISO_PORT                    GPIOB
+#define SPI_MISO_AFSOURCE                GPIO_PinSource14
+#define SPI_MISO_AFMODE                  GPIO_AF_0
+
+#define SPI_SCK_BUSCLK                  RCC_AHBENR_GPIOB
+#define SPI_SCK_PIN                     GPIO_Pin_13
+#define SPI_SCK_PORT                    GPIOB
+#define SPI_SCK_AFSOURCE                GPIO_PinSource13
+#define SPI_SCK_AFMODE                  GPIO_AF_0
 						  	    													  
 void SPI2_Init(void);			 //初始化SPI口
 void SPIx_SetSpeed(u8 SpeedSet); //设置SPI速度   

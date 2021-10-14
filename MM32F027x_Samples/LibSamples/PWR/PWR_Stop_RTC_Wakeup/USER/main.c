@@ -62,7 +62,7 @@ void Init_NVIC(void)
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			  	//使能串口1中断
 	exNVIC_Init(&NVIC_InitStructure);							  	//根据参数初始化中断寄存器
 	
-	// 配置DMA通道15
+	// 配置DMA通道
 	NVIC_InitStructure.NVIC_IRQChannel = DMA1_Channel2_3_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
@@ -73,7 +73,7 @@ void Init_NVIC(void)
 
 s32 main(void)
 {
-	SystemReInit(5);//11 6
+	SystemReInit(SYSTEMCLK_HSI_96MHz);
     LED_Init();
 	DELAY_Init();
 	

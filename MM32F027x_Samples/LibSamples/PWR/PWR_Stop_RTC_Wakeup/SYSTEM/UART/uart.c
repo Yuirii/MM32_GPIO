@@ -79,6 +79,7 @@ void Usart_DmaConfig(void){
 	RCC_AHBPeriphClockCmd(RCC_AHBENR_DMA1,ENABLE);
 	
 	DMA_DeInit(DMA1_Channel3);
+	DMA_StructInit(&dmaTypeStruct);
 	/*!< Specifies the peripheral base address for DMAy Channelx. */
 	dmaTypeStruct.DMA_PeripheralBaseAddr=(uint32_t)(&UART1->RDR);//(uint32_t)(&UART1->TDR) | (uint32_t)(&UART1->RDR);
 	dmaTypeStruct.DMA_MemoryBaseAddr=(uint32_t)DATA;
@@ -92,20 +93,15 @@ void Usart_DmaConfig(void){
 	dmaTypeStruct.DMA_Priority = DMA_Priority_High;
 	dmaTypeStruct.DMA_M2M = DMA_M2M_Disable;
 	DMA_Init(DMA1_Channel3,&dmaTypeStruct);
-	__NOP();
-	__NOP();
-	
+
 	UART_DMACmd(UART1,USART_DMAReq_Rx,ENABLE);
-	__NOP();
-	__NOP();
 	//DMA_GetFlagStatus(DMA2_FLAG_TC3);
 	//DMA_ClearFlag(DMA1_FLAG_TC5);
 	//DMA_ClearITPendingBit(DMA1_IT_TC5);
 	DMA_ITConfig(DMA1_Channel3,DMA_IT_TC,ENABLE);
 	DMA_ITConfig(DMA1_Channel3,DMA_IT_TE,ENABLE);
 	DMA_Cmd(DMA1_Channel3,ENABLE);
-	__NOP();
-	__NOP();
+
 }
 
 /**@brief 	send buff.
@@ -168,7 +164,7 @@ void UART1_IRQHandler()
 	uint8_t TmpReg;
 
 	// 空闲总线中断触发到来
-	if (UART_GetITStatus(UART1, UART_IER_RXIDLE) != RESET)		
+	if (UART_GetITStatus(UART1, UART_ISR_RXIDLE) != RESET)		
 	{
 		// 关闭DMA,防止处理其间有数据
 		DMA_Cmd(DMA1_Channel3, DISABLE);						
@@ -181,12 +177,12 @@ void UART1_IRQHandler()
 		DMA_Cmd(DMA1_Channel3, ENABLE);
 		
 		 // 先读SR，然后读DR以清除空闲中断状态
-		TmpReg += UART1->CSR;
+//		TmpReg += UART1->CSR;
 		TmpReg += UART1->ISR;		
-    	TmpReg += UART1->TDR;
 		TmpReg += UART1->RDR;
 		TmpReg = TmpReg;
 		RXflag = 1;
+		UART_ClearITPendingBit(UART1, UART_ICR_RXIDLE);
 	}
 	
 	if(UART_GetITStatus(UART1, UART_IT_RXIEN) != RESET)

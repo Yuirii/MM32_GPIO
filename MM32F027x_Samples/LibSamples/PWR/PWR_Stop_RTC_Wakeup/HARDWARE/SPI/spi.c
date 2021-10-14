@@ -7,6 +7,46 @@
 #include "mm32_device.h"
 #include "hal_conf.h"
 
+
+static void W25xx_CS_High()
+{
+    //Spi cs release
+    SPI_CSInternalSelected(SPI2, DISABLE);
+}
+
+static void SPI2_GPIO_Config(void)
+{
+    GPIO_InitTypeDef  GPIO_InitStruct;
+
+    RCC_AHBPeriphClockCmd(RCC_AHBENR_GPIOB, ENABLE);
+    GPIO_PinAFConfig(SPI_MOSI_PORT, SPI_MOSI_AFSOURCE, SPI_MOSI_AFMODE);
+    GPIO_PinAFConfig(SPI_NSS_PORT, SPI_NSS_AFSOURCE, SPI_NSS_AFMODE);
+    GPIO_PinAFConfig(SPI_MISO_PORT, SPI_MISO_AFSOURCE, SPI_MISO_AFMODE);
+    GPIO_PinAFConfig(SPI_SCK_PORT, SPI_SCK_AFSOURCE, SPI_SCK_AFMODE);
+    W25xx_CS_High();
+    //spi2_cs  pb12
+    GPIO_StructInit(&GPIO_InitStruct);
+    GPIO_InitStruct.GPIO_Pin  = SPI_NSS_PIN;
+    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
+    GPIO_Init(SPI_NSS_PORT, &GPIO_InitStruct);
+    //spi2_sck  pb13
+    GPIO_InitStruct.GPIO_Pin  = SPI_SCK_PIN;
+    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
+    GPIO_Init(SPI_SCK_PORT, &GPIO_InitStruct);
+    //spi2_mosi  pb15
+    GPIO_InitStruct.GPIO_Pin  = SPI_MOSI_PIN;
+    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
+    GPIO_Init(SPI_MOSI_PORT, &GPIO_InitStruct);
+    //spi2_miso  pb14
+    GPIO_InitStruct.GPIO_Pin  = SPI_MISO_PIN;
+    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPU;
+    GPIO_Init(SPI_MISO_PORT, &GPIO_InitStruct);
+
+}
 /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ** 函数名称: SPIx_Init
 ** 功能描述: SPI初始化，PB13 PB14 PB15作为SPI2的引脚PC4作为CS
@@ -14,57 +54,26 @@
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
 void SPI2_Init(void)
 {
-	SPI_InitTypeDef SPI_InitStructure;
-    GPIO_InitTypeDef GPIO_InitStructure;
+    SPI_InitTypeDef SPI_InitStruct;
+    RCC_APB1PeriphClockCmd(RCC_APB1ENR_SPI2, ENABLE);
 
-  	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
-	RCC_APB2PeriphClockCmd(RCC_AHBENR_GPIOB | RCC_AHBENR_GPIOC, ENABLE);
-	
-    //SPI2模块对应的PB13:SCK、PB14:MISO、PB15:MOSI为AF引脚
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	// 拉高对应电平
-	//GPIO_SetBits(GPIOB,GPIO_Pin_13|GPIO_Pin_14|GPIO_Pin_15);
-	
-	//配置PC4即SPI2_NSS
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_Init(GPIOC,&GPIO_InitStructure);
-	//PC4片选信号
-	GPIO_SetBits(GPIOC,GPIO_Pin_4);
-
-	//PB12配置从机spi Ready信号管脚，此处与从机PIN13脚相连接	
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	//GPIO_ResetBits(GPIOB, GPIO_Pin_12);
-	
-	/* SPI2 configuration pclk1 2*36M */
-//	SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
-	
-	SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
-	SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
-	SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;
-	SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;
-	SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;			// SPI_NSS_Hard硬件自动，主从1对1，发送数据期间保持NSS为低
-	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_32;
-	SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;	// the Most Significant Bit
-//	SPI_InitStructure.SPI_CRCPolynomial = 7;			// 确定CRC计算多项式
-	
-	SPI_Init(SPI2, &SPI_InitStructure);
-//	SPI2->CR1 |= 0x4000;
-//	SPI2->CR1 |= 0x2000;
-
-	SPI_I2S_ClearFlag(SPI2, SPI_FLAG_TXEPT);
-	SPI_I2S_ClearFlag(SPI2, SPI_FLAG_RXAVL);
-  	//SPI_I2S_ITConfig(SPI2, SPI_I2S_IT_RXNE, ENABLE);//开启中断
-	
-  	SPI_Cmd(SPI2, ENABLE);					   //Enable SPI1  
-	
-	/* BYS SPI_SR 寄存器 */
+	SPI2_GPIO_Config();
+    SPI_StructInit(&SPI_InitStruct);
+    SPI_InitStruct.SPI_Mode = SPI_Mode_Master;
+    SPI_InitStruct.SPI_DataSize = SPI_DataSize_8b;
+    SPI_InitStruct.SPI_DataWidth = SPI_DataWidth_8b;
+    SPI_InitStruct.SPI_CPOL = SPI_CPOL_Low;
+    SPI_InitStruct.SPI_CPHA = SPI_CPHA_1Edge;
+    SPI_InitStruct.SPI_NSS = SPI_NSS_Soft;
+    SPI_InitStruct.SPI_BaudRatePrescaler = (SPI_BaudRatePrescaler_TypeDef)SPI_BaudRatePrescaler_32;
+    SPI_InitStruct.SPI_FirstBit = SPI_FirstBit_MSB;
+    SPI_Init(SPI2, &SPI_InitStruct);
+    if(SPI_InitStruct.SPI_BaudRatePrescaler <= 8) {
+        exSPI_DataEdgeAdjust(SPI2, SPI_DataEdgeAdjust_FAST);
+    }
+    SPI_BiDirectionalLineConfig(SPI2, SPI_Direction_Rx);
+    SPI_BiDirectionalLineConfig(SPI2, SPI_Direction_Tx);
+    SPI_Cmd(SPI2, ENABLE);
 }
 
 /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
