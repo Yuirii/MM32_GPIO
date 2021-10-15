@@ -135,7 +135,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>d</Name>
+          <Name></Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -157,18 +157,18 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>368</LineNumber>
+          <LineNumber>236</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134222576</Address>
+          <Address>134221168</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\HARDWARE\SPI\spi.c</Filename>
+          <Filename>..\SYSTEM\UART\uart.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\MBOUT\../HARDWARE/SPI/spi.c\368</Expression>
+          <Expression>\\MBOUT\../SYSTEM/UART/uart.c\236</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>

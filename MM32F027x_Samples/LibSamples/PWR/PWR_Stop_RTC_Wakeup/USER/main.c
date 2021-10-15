@@ -74,23 +74,59 @@ void Init_NVIC(void)
 //	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 //    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 //    exNVIC_Init(&NVIC_InitStructure);
+	
 }
 
+void uart1_init()
+{
+	CONSOLE_Init(115200);
+}
 
+void RJMU401_init()
+{
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_CRC, ENABLE);
+	Init_APP();
+	Init_NVIC();
+}
+
+void F32768()
+{
+	uint8_t state_prev, state_curt;
+	state_prev = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_6);
+	DELAY_Ms(10);
+	state_curt = GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_6);
+	if(state_prev != state_curt)
+	{
+		
+		if(state_prev == 0 && state_curt == 1)
+		{
+			RCC_LSEConfig(RCC_LSE_ON);//RCC_LSE_OFF
+			RCC_APB1PeriphClockCmd(RCC_APB1ENR_PWREN, ENABLE);
+			printf("LSE ON");
+		}else if(state_prev == 1 && state_curt == 0){
+			RCC_LSEConfig(RCC_LSE_OFF);//RCC_LSE_OFF
+			RCC_APB1PeriphClockCmd(RCC_APB1ENR_PWREN, DISABLE);
+			printf("LSE OFF");
+		}
+	}
+}
 s32 main(void)
 {
 	SystemReInit(SYSTEMCLK_HSI_96MHz);
     LED_Init();
-	DELAY_Init();
+//	DELAY_Init();
 	
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_CRC, ENABLE);
 	CONSOLE_Init(115200);
-	Init_APP();
-	Init_NVIC();
+	RJMU401_init();
+	PWR_STOP_RTC_Init();
 	
-//    PWR_STOP_RTC_Init();
+#if LPWR
+    PWR_STOP_RTC_Init();
+#endif
+	
 	RJPrintInfo("\n\r Init Complete ... ", 0, 0);
 	DELAY_Ms(10);
+
 	
     while(1) {
 		DELAY_Ms(1);
@@ -100,6 +136,8 @@ s32 main(void)
 			RXflag = 0;
 		}
 		DELAY_Ms(1);
+		
+		F32768();
 		
 #if LPWR
 		LED_DeInit();

@@ -108,8 +108,8 @@ u8 RTC_Init(void)
     if (BKP_ReadBackupRegister(BKP_DR1) != 0x5050) {
         //Reset backup area
         BKP_DeInit();
-//        RCC_LSICmd(ENABLE);
-		RCC_LSEConfig(RCC_LSE_ON);
+        RCC_LSICmd(ENABLE);
+//		RCC_LSEConfig(RCC_LSE_ON);
         deleyNop(2000);
         //Check whether the specified RCC marker is set or not, and wait for the
         //low-speed crystal oscillator to be ready
@@ -119,7 +119,7 @@ u8 RTC_Init(void)
 //            deleyNop(10);
 //        }
         //Setting RTC Clock
-        RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
+        RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
         RCC_RTCCLKCmd(ENABLE);
         //Waiting for the last write to RTC registers to complete
         RTC_WaitForLastTask();
