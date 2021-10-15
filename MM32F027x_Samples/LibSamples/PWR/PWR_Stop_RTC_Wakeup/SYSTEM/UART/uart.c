@@ -70,7 +70,7 @@ s32 fputc(s32 ch, FILE* f)
 #endif
 
 
-/**@brief 	
+/**@brief 	Config
  * @param 	
  * @return 	
  **/
@@ -92,6 +92,47 @@ void Usart_DmaConfig(void){
 	dmaTypeStruct.DMA_Mode=DMA_Mode_Circular;
 	dmaTypeStruct.DMA_Priority = DMA_Priority_High;
 	dmaTypeStruct.DMA_M2M = DMA_M2M_Disable;
+	dmaTypeStruct.DMA_Auto_reload = DMA_Auto_Reload_Disable;
+	DMA_Init(DMA1_Channel3,&dmaTypeStruct);
+
+	UART_DMACmd(UART1,USART_DMAReq_Rx,ENABLE);
+//	DMA_GetFlagStatus(DMA2_FLAG_TC3);
+//	DMA_ClearFlag(DMA1_FLAG_TC5);
+//	DMA_ClearITPendingBit(DMA1_IT_TC5);
+	DMA_ITConfig(DMA1_Channel3,DMA_IT_TC,ENABLE);
+	DMA_ITConfig(DMA1_Channel3,DMA_IT_TE,ENABLE);
+	DMA_Cmd(DMA1_Channel3,ENABLE);
+
+}
+
+/**@brief 	Reconfig
+ * @param 	
+ * @return 	
+ **/
+void Usart_DmaReConfig(void){
+	DMA_InitTypeDef dmaTypeStruct;
+	RCC_AHBPeriphClockCmd(RCC_AHBENR_DMA1,DISABLE);
+	
+	UART_DMACmd(UART1,USART_DMAReq_Rx,DISABLE);
+	DMA_ITConfig(DMA1_Channel3,DMA_IT_TC,DISABLE);
+	DMA_ITConfig(DMA1_Channel3,DMA_IT_TE,DISABLE);
+	
+	RCC_AHBPeriphClockCmd(RCC_AHBENR_DMA1,ENABLE);
+	DMA_DeInit(DMA1_Channel3);
+	DMA_StructInit(&dmaTypeStruct);
+	/*!< Specifies the peripheral base address for DMAy Channelx. */
+	dmaTypeStruct.DMA_PeripheralBaseAddr=(uint32_t)(&UART1->RDR);//(uint32_t)(&UART1->TDR) | (uint32_t)(&UART1->RDR);
+	dmaTypeStruct.DMA_MemoryBaseAddr=(uint32_t)DATA;
+	dmaTypeStruct.DMA_DIR=DMA_DIR_PeripheralSRC;
+	dmaTypeStruct.DMA_BufferSize=DATALEN;
+	dmaTypeStruct.DMA_PeripheralInc=DMA_PeripheralInc_Disable;
+	dmaTypeStruct.DMA_MemoryInc=DMA_MemoryInc_Enable;
+	dmaTypeStruct.DMA_PeripheralDataSize=DMA_PeripheralDataSize_Byte;
+	dmaTypeStruct.DMA_MemoryDataSize=DMA_MemoryDataSize_Byte;
+	dmaTypeStruct.DMA_Mode=DMA_Mode_Circular;
+	dmaTypeStruct.DMA_Priority = DMA_Priority_High;
+	dmaTypeStruct.DMA_M2M = DMA_M2M_Disable;
+	dmaTypeStruct.DMA_Auto_reload = DMA_Auto_Reload_Disable;
 	DMA_Init(DMA1_Channel3,&dmaTypeStruct);
 
 	UART_DMACmd(UART1,USART_DMAReq_Rx,ENABLE);
@@ -175,6 +216,9 @@ void UART1_IRQHandler()
 		// 重装待接收数据的长度
 		DMA_SetCurrDataCounter(DMA1_Channel3, DATALEN);   
 		DMA_Cmd(DMA1_Channel3, ENABLE);
+		
+		//
+		Usart_DmaReConfig();
 		
 		 // 先读SR，然后读DR以清除空闲中断状态
 //		TmpReg += UART1->CSR;
