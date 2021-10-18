@@ -125,7 +125,7 @@ static uint16_t STM_CommomOpera(uint8_t *buff, uint16_t len, uint8_t *result, ui
 	SPI_TXbuff(buff, 0x06);      // 发送命令
 	DELAY_Us(50);
 	SPI_RXbuff(CMD_Result, 2);    // 读CMD解析状态字节
-	RJPrintInfo("\r\n Receive CMD_Result : ", CMD_Result, 2);
+//	RJPrintInfo("\r\n Receive CMD_Result : ", CMD_Result, 2);
 	if((CMD_Result[0] == 0x9A) && (CMD_Result[1] == 0x00))   // CMD解析正常
     {
 	   if(len == 0x06 && (buff[4] != 0 || buff[5] != 0))  //无数据，且有待接收数据
@@ -155,7 +155,7 @@ static uint16_t STM_CommomOpera(uint8_t *buff, uint16_t len, uint8_t *result, ui
 	
 	DELAY_Us(100);
 	SPI_RXbuff(Result_SW,2);    			//读结果状态字节
-	RJPrintInfo("\r\n Received Result_SW : ", Result_SW, 2);
+//	RJPrintInfo("\r\n Received Result_SW : ", Result_SW, 2);
 	
 	Result_status=(uint16_t)Result_SW[0]<<8 | (uint16_t)Result_SW[1] ;
 	if(Result_status==0x9000||Result_status==0x6A00||Result_status==0x6B00||Result_status==0x6C00 

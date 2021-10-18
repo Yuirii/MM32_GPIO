@@ -118,7 +118,7 @@ s32 main(void)
 	
 	CONSOLE_Init(115200);
 	RJMU401_init();
-	PWR_STOP_RTC_Init();
+//	PWR_STOP_RTC_Init();
 	
 #if LPWR
     PWR_STOP_RTC_Init();

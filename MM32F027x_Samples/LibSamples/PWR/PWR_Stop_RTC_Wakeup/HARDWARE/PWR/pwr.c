@@ -131,7 +131,7 @@ u8 RTC_Init(void)
         RTC_EnterConfigMode();
         //Setting the value of RTC pre-frequency Division
         RTC_SetPrescaler(32767);
-        RTC_SetAlarm(0x02);
+        RTC_SetAlarm(0x05);
         RTC_WaitForLastTask();
         RTC_WaitForSynchro();
         //Exit configuration mode

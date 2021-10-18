@@ -14,6 +14,7 @@
 #include "delay.h"
 #include "usually.h"
 #include "verifypro.h"
+#include "mapping.h"
 
 uint8_t cmd[6] = {0};
 uint16_t send_len = 0;
@@ -33,6 +34,11 @@ uint16_t SendData_API(void)
 	uint16_t data_len = 0, i;
 	uint16_t t_time = 0;
 	
+	//Here, we should add a <mapping relation>.
+	/**
+		CODES.
+		
+	*/
 	for(i = 0; i < 6; i++)
 	{
 		cmd[i] = Cmd_APDU[i];
@@ -67,35 +73,63 @@ uint16_t SendData_API(void)
 		send_data[i] = Cmd_Data[i];
 	}
 	
-	RJPrintInfo("\r\n Send Cmd: ", cmd, 6);
-	RJPrintInfo("\r\n Send Data: ", send_data, send_len);
+//	RJPrintInfo("\r\n Send Cmd: ", cmd, 6);
+//	RJPrintInfo("\r\n Send Data: ", send_data, send_len);
 	ResultSW = STM_OperationHandle(cmd, send_data, send_len, result_data, &result_len);
-	RJPrintInfo("\r\n Data Received: ", result_data, result_len);
+//	RJPrintInfo("\r\n Data Received: ", result_data, result_len);
+	RJPrintInfo("", result_data, result_len);
 	
 	Cmd_DataLen = 0;
 	memset(Cmd_APDU, 0, sizeof(Cmd_APDU));
 	memset(Cmd_Data, 0, sizeof(Cmd_Data));
 	TransHW_B(&ResultSW , ResultByte, 1);
-	RJPrintInfo("\r\n ResultSW: ", ResultByte, 2);
-	RJPrintInfo("\r\n Finish Task! ",0,0);
+//	RJPrintInfo("\r\n ResultSW: ", ResultByte, 2);
+//	RJPrintInfo("\r\n Finish Task! ",0,0);
 	
 	return ResultSW;
 }
 
 void CommomOperation(void)
 {
-	if(DataLen>6){
-		Cmd_DataLen = DataLen-6;
-		memcpy(Cmd_APDU, DATA, 6);
-		memcpy(Cmd_Data, &DATA[6], Cmd_DataLen);
-	}else if(DataLen==6){
-		Cmd_DataLen = 0;
-		memcpy(Cmd_APDU, DATA, 6);
+//	Examples:
+//	if(DataLen>6){
+//		Cmd_DataLen = DataLen-6;
+//		memcpy(Cmd_APDU, DATA, 6);
+//		memcpy(Cmd_Data, &DATA[6], Cmd_DataLen);
+//	}else if(DataLen==6){
+//		Cmd_DataLen = 0;
+//		memcpy(Cmd_APDU, DATA, 6);
+//	}else{
+//		RJPrintInfo("\r\n 数据错误", 0, 0);
+//		return;
+//	}
+//	
+//	DataLen = 0;
+//	SendData_API();
+	
+	at_cmd_parse(DATA, DataLen);
+	if(DataLen>1){
+		Cmd_DataLen = Cmd_DataLen2;
+		cmd_table[cmd_index].key_cmd[5] = Cmd_DataLen2;
+		memcpy(Cmd_APDU, &cmd_table[cmd_index].key_cmd, 6);
+		memcpy(Cmd_Data, &Cmd_Data2, Cmd_DataLen2);
 	}else{
 		RJPrintInfo("\r\n 数据错误", 0, 0);
 		return;
 	}
+	USART1_SendBuff((uint8_t*)cmd_table[cmd_index].cmd, 3);
+	USART1_SendBuff((uint8_t*)",", 1);
+	SendData_API();
 	
+	if(DataLen>1){
+		Cmd_DataLen = Cmd_DataLen1;
+		cmd_table[cmd_index].content_cmd[5] = Cmd_DataLen1;
+		memcpy(Cmd_APDU, &cmd_table[cmd_index].content_cmd, 6);
+		memcpy(Cmd_Data, &Cmd_Data1, Cmd_DataLen1);
+	}else{
+		RJPrintInfo("\r\n 数据错误", 0, 0);
+		return;
+	}
 	DataLen = 0;
 	SendData_API();
 }

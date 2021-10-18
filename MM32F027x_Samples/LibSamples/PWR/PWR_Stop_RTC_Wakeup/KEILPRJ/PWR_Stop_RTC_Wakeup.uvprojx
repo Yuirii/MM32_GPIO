@@ -461,6 +461,11 @@
               <FileType>1</FileType>
               <FilePath>..\USER\verifypro.c</FilePath>
             </File>
+            <File>
+              <FileName>mapping.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\mapping.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
